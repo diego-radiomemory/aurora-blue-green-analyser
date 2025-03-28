@@ -1,0 +1,117 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+      "ClusterId": {
+        "Type": "String",
+        "Description": "Identificador do cluster Aurora (Blue)"
+      },
+      "GreenInstanceId": {
+        "Type": "String",
+        "Description": "Identificador da instância Green"
+      }
+    },
+    "Resources": {
+      "AuroraBlueGreenDashboard": {
+        "Type": "AWS::CloudWatch::Dashboard",
+        "Properties": {
+          "DashboardName": "blue-green-acompanhamento-teste",
+          "DashboardBody": {
+            "Fn::Sub": [
+              "{ \"widgets\": [
+                {
+                  \"type\": \"metric\",
+                  \"x\": 0,
+                  \"y\": 0,
+                  \"width\": 12,
+                  \"height\": 6,
+                  \"properties\": {
+                    \"metrics\": [
+                      [\"AWS/RDS\", \"BinLogDiskUsage\", \"DBClusterIdentifier\", \"${ClusterId}\"]
+                    ],
+                    \"region\": \"${AWS::Region}\",
+                    \"stat\": \"Maximum\",
+                    \"period\": 300,
+                    \"title\": \"Binlog Disk Usage (Blue)\",
+                    \"annotations\": {}
+                  }
+                },
+                {
+                  \"type\": \"metric\",
+                  \"x\": 12,
+                  \"y\": 0,
+                  \"width\": 12,
+                  \"height\": 6,
+                  \"properties\": {
+                    \"metrics\": [
+                      [\"AWS/RDS\", \"AuroraReplicaLag\", \"DBInstanceIdentifier\", \"${GreenInstanceId}\"]
+                    ],
+                    \"region\": \"${AWS::Region}\",
+                    \"stat\": \"Maximum\",
+                    \"period\": 300,
+                    \"title\": \"Replica Lag (Green)\",
+                    \"annotations\": {}
+                  }
+                },
+                {
+                  \"type\": \"metric\",
+                  \"x\": 0,
+                  \"y\": 6,
+                  \"width\": 12,
+                  \"height\": 6,
+                  \"properties\": {
+                    \"metrics\": [
+                      [\"AWS/RDS\", \"CPUUtilization\", \"DBInstanceIdentifier\", \"${GreenInstanceId}\"]
+                    ],
+                    \"region\": \"${AWS::Region}\",
+                    \"stat\": \"Average\",
+                    \"period\": 300,
+                    \"title\": \"CPU Usage (Green)\",
+                    \"annotations\": {}
+                  }
+                },
+                {
+                  \"type\": \"metric\",
+                  \"x\": 12,
+                  \"y\": 6,
+                  \"width\": 12,
+                  \"height\": 6,
+                  \"properties\": {
+                    \"metrics\": [
+                      [\"AWS/RDS\", \"FreeableMemory\", \"DBInstanceIdentifier\", \"${GreenInstanceId}\"]
+                    ],
+                    \"region\": \"${AWS::Region}\",
+                    \"stat\": \"Average\",
+                    \"period\": 300,
+                    \"title\": \"Freeable Memory (Green)\",
+                    \"annotations\": {}
+                  }
+                },
+                {
+                  \"type\": \"metric\",
+                  \"x\": 0,
+                  \"y\": 12,
+                  \"width\": 12,
+                  \"height\": 6,
+                  \"properties\": {
+                    \"metrics\": [
+                      [\"AWS/RDS\", \"DiskQueueDepth\", \"DBInstanceIdentifier\", \"${GreenInstanceId}\"]
+                    ],
+                    \"region\": \"${AWS::Region}\",
+                    \"stat\": \"Average\",
+                    \"period\": 300,
+                    \"title\": \"Disk Queue Depth (Green)\",
+                    \"annotations\": {}
+                  }
+                }
+              ] }",
+              {
+                "ClusterId": { "Ref": "ClusterId" },
+                "GreenInstanceId": { "Ref": "GreenInstanceId" }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  
